@@ -10,6 +10,7 @@ class QStandardItem;
 class QStandardItemModel;
 QT_END_NAMESPACE
 
+class IconModel;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -30,6 +31,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QStandardItemModel *m_model;
+    IconModel *m_model;
 };
 #endif // MAINWINDOW_H

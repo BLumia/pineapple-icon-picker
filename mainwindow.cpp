@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "iconmodel.h"
+
 #include <QMimeData>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -13,7 +15,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_model(new QStandardItemModel(this))
+    , m_model(new IconModel(this))
 {
     ui->setupUi(this);
     ui->listView->setModel(m_model);
@@ -26,8 +28,6 @@ MainWindow::~MainWindow()
 
 bool MainWindow::loadFile(QString filePath)
 {
-    m_model->clear();
-
     QList<QStandardItem*> iconList;
 
     QFile file(filePath);
@@ -120,7 +120,11 @@ bool MainWindow::loadFile(QString filePath)
         }
     }
 
+    if (iconList.isEmpty()) return false;
+
+    m_model->clear();
     m_model->appendColumn(iconList);
+    return true;
 }
 
 QByteArray MainWindow::svgFromSymbolContent(QString &viewBox, QByteArray &content)
@@ -137,10 +141,10 @@ R"svg(<svg viewBox="%1" xmlns="http://www.w3.org/2000/svg"
 QByteArray MainWindow::svgFromPath(QSize size, QString &path)
 {
     QString templateSvg(
-R"svg(<svg width="%1" height="%2" xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink">
-     <path d="%5"></path>
-   </svg> )svg");
+R"svg(<svg viewBox="0 0 %1 %2" xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+    <path d="%5"></path>
+</svg>)svg");
 
     return templateSvg.arg(size.width()).arg(size.height()).arg(path).toLatin1();
 }
@@ -157,7 +161,11 @@ QStandardItem *MainWindow::createItem(QByteArray & svgContent, QString &iconName
     render.render(&painter);
     QIcon icon(downwardYAxis ? img.transformed(QTransform::fromScale(1, -1)) : img);
 
-    return new QStandardItem(icon, iconName);
+    QStandardItem * item = new QStandardItem(icon, iconName);
+
+    item->setData(svgContent);
+
+    return item;
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)

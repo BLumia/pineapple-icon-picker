@@ -20,6 +20,9 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QListView" name="listView">
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::DragOnly</enum>
+      </property>
       <property name="resizeMode">
        <enum>QListView::Adjust</enum>
       </property>
