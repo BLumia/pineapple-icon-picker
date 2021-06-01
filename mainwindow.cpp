@@ -11,6 +11,7 @@
 #include <QSvgRenderer>
 #include <QDebug>
 #include <QPainter>
+#include <QFile>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -49,7 +50,7 @@ bool MainWindow::loadFile(QString filePath)
     int glyphUnitsPerEm = 1000;
     int glyphHorizAdvX = 0;
     if (reader.readNextStartElement()) {
-        if (reader.name() == "svg") {
+        if (reader.name() == QLatin1String("svg")) {
             while (reader.readNextStartElement()) {
                 qDebug() << "reading" << reader.name();
 
@@ -59,7 +60,7 @@ bool MainWindow::loadFile(QString filePath)
                 };
                 if (containUsefulNode.contains(reader.name())) {
                     continue;
-                } else if (reader.name() == "font") {
+                } else if (reader.name() == QLatin1String("font")) {
                     QXmlStreamAttributes attrs = reader.attributes();
 
                     if (attrs.hasAttribute("horiz-adv-x")) {
@@ -67,7 +68,7 @@ bool MainWindow::loadFile(QString filePath)
                     }
 
                     continue;
-                } else if (reader.name() == "font-face") {
+                } else if (reader.name() == QLatin1String("font-face")) {
                     qDebug() << "font-face";
                     QXmlStreamAttributes attrs = reader.attributes();
 
@@ -76,7 +77,7 @@ bool MainWindow::loadFile(QString filePath)
                     }
 
                     QString s = reader.readElementText();
-                } else if (reader.name() == "symbol") {
+                } else if (reader.name() == QLatin1String("symbol")) {
                     QXmlStreamAttributes attrs = reader.attributes();
                     QString viewBox = attrs.value("viewBox").toString();
                     QString name = attrs.hasAttribute("id") ? attrs.value("id").toString()
@@ -89,7 +90,7 @@ bool MainWindow::loadFile(QString filePath)
 
                     QByteArray content = svgFromSymbolContent(viewBox, rawChild);
                     iconList.append(createItem(content, name));
-                } else if (reader.name() == "glyph") {
+                } else if (reader.name() == QLatin1String("glyph")) {
                     QXmlStreamAttributes attrs = reader.attributes();
 
                     QString name = attrs.hasAttribute("glyph-name") ? attrs.value("glyph-name").toString()
